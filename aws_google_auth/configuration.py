@@ -35,6 +35,7 @@ class Configuration(object):
         self.username = None
         self.print_creds = False
         self.quiet = False
+        self.alias = None
 
     # For the "~/.aws/config" file, we use the format "[profile testing]"
     # for the 'testing' profile. The credential file will just be "[testing]"

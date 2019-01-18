@@ -33,6 +33,7 @@ def parse_args(args):
     parser.add_argument('--no-cache', dest="saml_cache", action='store_false', help='Do not cache the SAML Assertion.')
     parser.add_argument('--print-creds', action='store_true', help='Print Credentials.')
     parser.add_argument('--resolve-aliases', action='store_true', help='Resolve AWS account aliases.')
+    parser.add_argument('--alias', help='AWS account alias')
     parser.add_argument('--save-failure-html', action='store_true', help='Write HTML failure responses to file for troubleshooting.')
 
     role_group = parser.add_mutually_exclusive_group()
@@ -158,6 +159,11 @@ def resolve_config(args):
         args.quiet,
         config.quiet)
 
+    # Alias
+    config.alias = coalesce(
+        args.alias,
+        config.alias)
+
     return config
 
 
@@ -219,6 +225,13 @@ def process_auth(args, config):
     else:
         if config.resolve_aliases:
             aliases = amazon_client.resolve_aws_aliases(roles)
+            if config.alias:
+                filtered_aliases = {}
+                for account, alias in aliases.items():
+                    if config.alias == alias:
+                        aliases = {account:alias}
+                        break
+
             config.role_arn, config.provider = util.Util.pick_a_role(roles, aliases)
         else:
             config.role_arn, config.provider = util.Util.pick_a_role(roles)

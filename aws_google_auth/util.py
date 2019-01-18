@@ -22,11 +22,13 @@ class Util:
         if aliases:
             enriched_roles = {}
             for role, principal in roles.items():
-                enriched_roles[role] = [
-                    aliases[role.split(':')[4]],
-                    role.split('role/')[1],
-                    principal
-                ]
+                account_key = role.split(':')[4]
+                if account_key in aliases:
+                    enriched_roles[role] = [
+                        aliases[account_key],
+                        role.split('role/')[1],
+                        principal
+                    ]
             enriched_roles = OrderedDict(sorted(enriched_roles.items(), key=lambda t: (t[1][0], t[1][1])))
 
             ordered_roles = OrderedDict()
