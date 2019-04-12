@@ -86,13 +86,15 @@ class Amazon:
 
     def resolve_aws_aliases(self, roles):
         def resolve_aws_alias(role, principal, aws_dict):
+            if "ignore" in role: 
+                return
+
             session = boto3.session.Session(region_name=self.config.region)
 
             sts = session.client('sts')
             saml = sts.assume_role_with_saml(RoleArn=role,
                                              PrincipalArn=principal,
                                              SAMLAssertion=self.base64_encoded_saml)
-
             iam = session.client('iam',
                                  aws_access_key_id=saml['Credentials']['AccessKeyId'],
                                  aws_secret_access_key=saml['Credentials']['SecretAccessKey'],
