@@ -229,3 +229,47 @@ class TestResolveAliasesProcessing(unittest.TestCase):
         args = parse_args([])
         config = resolve_config(args)
         self.assertTrue(config.resolve_aliases)
+
+
+class TestBgResponseProcessing(unittest.TestCase):
+
+    def test_default(self):
+        args = parse_args([])
+        config = resolve_config(args)
+        self.assertFalse(config.resolve_aliases)
+
+    def test_cli_param_supplied(self):
+        args = parse_args(['--bg-response=foo'])
+        config = resolve_config(args)
+        self.assertEqual(config.bg_response, 'foo')
+
+    @nottest
+    @mock.patch.dict(os.environ, {'GOOGLE_BG_RESPONSE': 'foo'})
+    def test_with_environment(self):
+        args = parse_args([])
+        config = resolve_config(args)
+        self.assertEqual(config.bg_response, 'foo')
+
+
+class TestAccountProcessing(unittest.TestCase):
+
+    @nottest
+    def test_default(self):
+        args = parse_args([])
+        config = resolve_config(args)
+        self.assertEqual(None, config.account)
+
+    def test_cli_param_supplied(self):
+        args = parse_args(['--account', "123456789012"])
+        config = resolve_config(args)
+        self.assertEqual("123456789012", config.account)
+
+    @mock.patch.dict(os.environ, {'AWS_ACCOUNT': '123456789012'})
+    def test_with_environment(self):
+        args = parse_args([])
+        config = resolve_config(args)
+        self.assertEqual("123456789012", config.account)
+
+        args = parse_args(['--region', "123456789012"])
+        config = resolve_config(args)
+        self.assertEqual("123456789012", config.account)

@@ -48,6 +48,7 @@ class TestInit(unittest.TestCase):
                                          keyring=False,
                                          disable_u2f=False,
                                          duration=None,
+                                         auto_duration=False,
                                          idp_id=None,
                                          profile=None,
                                          region=None,
@@ -55,10 +56,14 @@ class TestInit(unittest.TestCase):
                                          role_arn=None,
                                          save_failure_html=False,
                                          saml_cache=True,
+                                         saml_assertion=None,
                                          sp_id=None,
+                                         log_level='warn',
                                          print_creds=False,
                                          username=None,
-                                         quiet=False))
+                                         quiet=False,
+                                         bg_response=None,
+                                         account=None))
                           ],
                          resolve_config.mock_calls)
 
@@ -66,6 +71,7 @@ class TestInit(unittest.TestCase):
                                          keyring=False,
                                          disable_u2f=False,
                                          duration=None,
+                                         auto_duration=False,
                                          idp_id=None,
                                          profile=None,
                                          region=None,
@@ -73,10 +79,14 @@ class TestInit(unittest.TestCase):
                                          role_arn=None,
                                          save_failure_html=False,
                                          saml_cache=True,
+                                         saml_assertion=None,
                                          sp_id=None,
+                                         log_level='warn',
                                          print_creds=False,
                                          username=None,
-                                         quiet=False),
+                                         quiet=False,
+                                         bg_response=None,
+                                         account=None),
                                mock_config)
                           ],
                          process_auth.mock_calls)
@@ -94,6 +104,8 @@ class TestInit(unittest.TestCase):
         mock_config.idp_id = None
         mock_config.sp_id = None
         mock_config.return_value = None
+        mock_config.account = None
+        mock_config.region = None
 
         mock_amazon_client = Mock()
         mock_google_client = Mock()
@@ -105,7 +117,7 @@ class TestInit(unittest.TestCase):
 
         mock_util_obj = MagicMock()
         mock_util_obj.pick_a_role = MagicMock(return_value=("da_role", "da_provider"))
-        mock_util_obj.get_input = MagicMock(side_effect=["input", "input2", "input3"])
+        mock_util_obj.get_input = MagicMock(side_effect=["region_input", "input", "input2", "input3"])
         mock_util_obj.get_password = MagicMock(return_value="pass")
 
         mock_util.Util = mock_util_obj
@@ -121,6 +133,7 @@ class TestInit(unittest.TestCase):
         aws_google_auth.process_auth(args, mock_config)
 
         # Assert values collected
+        self.assertEqual(mock_config.region, "region_input")
         self.assertEqual(mock_config.username, "input")
         self.assertEqual(mock_config.idp_id, "input2")
         self.assertEqual(mock_config.sp_id, "input3")
@@ -129,7 +142,8 @@ class TestInit(unittest.TestCase):
         self.assertEqual(mock_config.role_arn, "da_role")
 
         # Assert calls occur
-        self.assertEqual([call.Util.get_input('Google username: '),
+        self.assertEqual([call.Util.get_input('AWS Region: '),
+                          call.Util.get_input('Google username: '),
                           call.Util.get_input('Google IDP ID: '),
                           call.Util.get_input('Google SP ID: '),
                           call.Util.get_password('Google Password: '),
@@ -165,6 +179,7 @@ class TestInit(unittest.TestCase):
         mock_config.sp_id = None
         mock_config.return_value = None
         mock_config.print_creds = True
+        mock_config.account = None
 
         mock_amazon_client = Mock()
         mock_google_client = Mock()
@@ -312,6 +327,7 @@ class TestInit(unittest.TestCase):
         mock_config.sp_id = None
         mock_config.return_value = None
         mock_config.keyring = False
+        mock_config.account = None
 
         mock_amazon_client = Mock()
         mock_google_client = Mock()
@@ -345,6 +361,7 @@ class TestInit(unittest.TestCase):
         self.assertEqual(mock_config.password, "pass")
         self.assertEqual(mock_config.provider, "da_provider")
         self.assertEqual(mock_config.role_arn, "da_role")
+        self.assertEqual(mock_config.account, None)
 
         # Assert calls occur
         self.assertEqual([call.Util.get_input('Google username: '),
@@ -383,6 +400,7 @@ class TestInit(unittest.TestCase):
         mock_config.profile = "blart"
         mock_config.return_value = None
         mock_config.role_arn = 'arn:aws:iam::123456789012:role/admin'
+        mock_config.account = None
 
         mock_amazon_client = Mock()
         mock_google_client = Mock()
@@ -455,6 +473,7 @@ class TestInit(unittest.TestCase):
         mock_config.password = None
         mock_config.return_value = None
         mock_config.role_arn = 'arn:aws:iam::123456789012:role/admin'
+        mock_config.account = None
 
         mock_amazon_client = Mock()
         mock_google_client = Mock()

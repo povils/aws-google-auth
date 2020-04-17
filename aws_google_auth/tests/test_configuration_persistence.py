@@ -30,8 +30,10 @@ class TestConfigurationPersistence(unittest.TestCase):
         self.c.sp_id = "sample_sp_id"
         self.c.u2f_disabled = False
         self.c.username = "sample_username"
+        self.c.bg_response = "foo"
         self.c.raise_if_invalid()
         self.c.write(None)
+        self.c.account = "123456789012"
 
         self.config_parser = configparser.RawConfigParser()
         self.config_parser.read(self.c.config_file)
@@ -54,6 +56,7 @@ class TestConfigurationPersistence(unittest.TestCase):
         self.assertEqual(self.config_parser[profile_string].getboolean('google_config.keyring'), self.c.keyring)
         self.assertEqual(self.config_parser[profile_string].getboolean('google_config.u2f_disabled'), self.c.u2f_disabled)
         self.assertEqual(self.config_parser[profile_string].getint('google_config.duration'), self.c.duration)
+        self.assertEqual(self.config_parser[profile_string].get('google_config.bg_response'), self.c.bg_response)
 
     def test_password_not_written(self):
         profile_string = configuration.Configuration.config_profile(self.c.profile)
@@ -85,3 +88,4 @@ class TestConfigurationPersistence(unittest.TestCase):
         self.assertEqual(test_configuration.u2f_disabled, self.c.u2f_disabled)
         self.assertEqual(test_configuration.duration, self.c.duration)
         self.assertEqual(test_configuration.keyring, self.c.keyring)
+        self.assertEqual(test_configuration.bg_response, self.c.bg_response)
